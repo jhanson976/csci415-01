@@ -47,23 +47,28 @@ void sine_serial(float *input, float *output)
 // TODO: Implement your graphics kernel here. See assignment instructions for method information
 
 
-__global__ void sine_parallel(float *input, float *output)
+void sine_parallel(float *input, float *output)
 {
 
-	int thread_id = threadIdx.x;
-	float value = input[thread_id];
-	float numer = input[thread_id] * input[thread_id] * input[thread_id];
-	int denom = 6; // 3!
-	int sign = -1;
+	int block_id = blockIdx.x + gridDim.x * blockIdx.y;
+	int thread_id = blockDim.x * block_id + threadIdx.x;
 
-	for(int j = 1; j<= TERMS; j++)
+	if(thread_id < N)
+{ 
+		float value = input[thread_id];
+		float numer = input[thread_id] * input[thread_id] * [thread_id];
+		int denom = 6; // 3!
+		int sign = -1;
+
+		for(int j = 1; j<= TERMS; j++)
 {
-		value += sign * numer / denom;
-		numer *= input[thread_id] * input[thread_id];
-		denom *= (2*j+2) * (2*j+3);
-		sign *= -1;
+			value += sign * numer / denom;
+			numer *= input[thread_id] * input[thread_id];
+			denom *= (2*j+2) * (2*j+3);
+			sign *= -1;
 }
-	output[thread_id] = value; 
+		output[thread_id] = value; 
+}
 }
 
 // BEGIN: timing and error checking routines (do not modify)
@@ -135,45 +140,9 @@ int main (int argc, char **argv)
   //TODO: Prepare and run your kernel, make sure to copy your results back into h_gpu_result and display your timing results
   float *h_gpu_result = (float*)malloc(N*sizeof(float));
   
-  //memory pointers for GPU
-  float *g_input;
-
-  float *g_output;
-
-  //Start time for the GPU
   long long GPU_start_time = start_timer();
-
-  //memory allocation for the GPU
-  long long memoryAllocate_GPU_start = start_timer();
-  cudaMalloc((void **) &g_output, N*sizeof(float));
-
-  cudaMalloc((void **) &g_input, N*sizeof(float));
-  long long memoryAllocate_GPU_time = stop_timer(memoryAllocate_GPU_start, "\n GPU - Copy Memory to Device");
-
-
-  //transer info to the GPU
-  long long memory_to_GPU_start = start_timer();
-  cudaMemcpy(g_input, h_input, N*sizeof(float), cudaMemcpyHostToDevice);
-  long long memory_to_GPU_time = stop_timer(memory_to_GPU_start, "\nMemory to GPU time");
-
-  //start kernel with time
-  long long kernel_start_time = start_timer();
-  sine_parallel<<<12057,1024>>>(g_output, g_input);
-  long long GPU_time = stop_timer(kernel_start_time, "\nKernel Running Time");
-
-  //results back to the CPU
-  long long memory_to_host_time_start = start_timer();
-  cudaMemcpy(h_gpu_result, g_output,N*sizeof(float), cudaMemcpyDeviceToHost);
-  long long memory_to_host_time = stop_timer(memory_to_host_time_start,"\nGPU Memory to Host time");
-  
-
-
-  //total time for GPU process
-  long long total_runtime = stop_timer(GPU_start_time, "\nTotal Runtime GPU");
-
-  //Memory Clean
-  cudaFree(g_input);
-  cudaFree(g_output);
+  sine_parallel(h_input, h_gpu_result);
+  long long GPU_time = stop_timer(GPU_start_time, "\nGPU Run Time");
 
 
   // Checking to make sure the CPU and GPU results match - Do not modify
@@ -185,10 +154,9 @@ int main (int argc, char **argv)
   }
   if (errorCount > 0)
     printf("Result comparison failed.\n");
-   
   else
     printf("Result comparison passed.\n");
-  printf("%d",errorCount);
+
   // Cleaning up memory
   free(h_input);
   free(h_cpu_result);
