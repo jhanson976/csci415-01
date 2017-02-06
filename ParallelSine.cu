@@ -50,7 +50,9 @@ void sine_serial(float *input, float *output)
 __global__ void sine_parallel(float *input, float *output)
 {
 
-	int thread_id = threadIdx.x;
+	int thread_id = blockDim.x * blockIdx.x + threadIdx.x;
+	if(thread_id < N){
+	
 	float value = input[thread_id];
 	float numer = input[thread_id] * input[thread_id] * input[thread_id];
 	int denom = 6; // 3!
@@ -65,7 +67,7 @@ __global__ void sine_parallel(float *input, float *output)
 }
 	output[thread_id] = value; 
 }
-
+}
 // BEGIN: timing and error checking routines (do not modify)
 
 // Returns the current time in microseconds
@@ -158,7 +160,7 @@ int main (int argc, char **argv)
 
   //start kernel with time
   long long kernel_start_time = start_timer();
-  sine_parallel<<<12057,1024>>>(g_output, g_input);
+  sine_parallel<<<12057,1024>>>( g_input,g_output);
   long long GPU_time = stop_timer(kernel_start_time, "\nKernel Running Time");
 
   //results back to the CPU
@@ -188,7 +190,7 @@ int main (int argc, char **argv)
    
   else
     printf("Result comparison passed.\n");
-  printf("%d",errorCount);
+ 
   // Cleaning up memory
   free(h_input);
   free(h_cpu_result);
