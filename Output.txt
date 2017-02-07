@@ -1,0 +1,44 @@
+
+CPU Run Time: 0.39103 sec
+
+ GPU - Copy Memory to Device: 0.11724 sec
+
+Memory to GPU time: 0.007427 sec
+
+Kernel Running Time: 4.1e-05 sec
+
+GPU Memory to Host time: 0.013304 sec
+
+Total Runtime GPU: 0.13811 sec
+Result comparison passed.
+hanson@titan:~/assign1/csci415-01$ ./ParallelSine
+
+CPU Run Time: 0.39363 sec
+
+ GPU - Copy Memory to Device: 0.095675 sec
+
+Memory to GPU time: 0.007075 sec
+
+Kernel Running Time: 4.1e-05 sec
+
+GPU Memory to Host time: 0.013272 sec
+
+Total Runtime GPU: 0.11617 sec
+Result comparison passed.
+hanson@titan:~/assign1/csci415-01$ ./ParallelSine
+
+CPU Run Time: 0.39122 sec
+
+ GPU - Copy Memory to Device: 0.096221 sec
+
+Memory to GPU time: 0.007114 sec
+
+Kernel Running Time: 4.1e-05 sec
+
+GPU Memory to Host time: 0.01378 sec
+
+Total Runtime GPU: 0.11727 sec
+Result comparison passed.
+hanson@titan:~/assign1/csci415-01$ ^C
+hanson@titan:~/assign1/csci415-01$ 
+
